@@ -1,6 +1,9 @@
 import { Buffer } from 'buffer'
+import IServiceClient from './IServiceClient'
 
 interface ITransport {
+    client: IServiceClient;
+
     flush: (async?: boolean, callback?) => void;
 
     isOpen: () => boolean;
@@ -20,6 +23,10 @@ interface ITransport {
     borrow?: () => {buf: Buffer, readIndex: number, writeIndex: number};
 
     consume?: (len: number) => void;
+}
+
+export interface TransportClass {
+    new (flushCallback: any): ITransport;
 }
 
 export default ITransport

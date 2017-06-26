@@ -1,9 +1,10 @@
-import ITransport from '../transport/ITransport'
+import ITransport from '../interface/ITransport'
+import IProtocol from '../interface/IProtocol'
 import { ThriftType, MessageType } from '../thrift-type'
 import { Buffer } from 'buffer'
 import { InputBufferUnderrunError } from '../error'
 
-export default class TJSONProtocol {
+export default class TJSONProtocol implements IProtocol {
     private tstack: any[];
     private tpos: number[];
     private rstack: any[];

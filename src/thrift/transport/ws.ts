@@ -1,4 +1,5 @@
-import ITransport from './ITransport'
+import ITransport from '../interface/ITransport'
+import IServiceClient from '../interface/IServiceClient'
 
 export default class TWebSocketTransport implements ITransport {
     private url: string;
@@ -12,6 +13,7 @@ export default class TWebSocketTransport implements ITransport {
     private rb_rpos: number = 0;
     private wpos: number;
     private rpos: number;
+    public client: IServiceClient;
 
     constructor (url: string) {
         this.reset(url)

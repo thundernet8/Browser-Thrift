@@ -1,4 +1,5 @@
-import ITransport from './ITransport'
+import ITransport from '../interface/ITransport'
+import IServiceClient from '../interface/IServiceClient'
 
 export default class TXHRTransport implements ITransport {
     private url: string;
@@ -9,6 +10,7 @@ export default class TXHRTransport implements ITransport {
     private send_buf: string = '';
     private recv_buf: string = '';
     private recv_buf_sz: number = 0;
+    public client: IServiceClient;
 
     constructor (url, options?) {
         this.url = url
