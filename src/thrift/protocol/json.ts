@@ -326,7 +326,7 @@ export default class TJSONProtocol implements IProtocol {
 
         if (openBracketCount !== 0) {
             // Missing closing bracket. Can be buffer underrun.
-            throw new InputBufferUnderrunError('')
+            throw new InputBufferUnderrunError()
         }
 
         //Reconstitute the JSON object and conume the necessary bytes
@@ -520,7 +520,7 @@ export default class TJSONProtocol implements IProtocol {
             this.rstack.pop()
         }
 
-        return r
+        return r.value
     }
 
     readI64 = () => {

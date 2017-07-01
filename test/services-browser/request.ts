@@ -20,15 +20,15 @@ export default function thriftRPC<T>(method, params): Promise<T> {
     let client = createClient(helpers[service], conn)
     return new Promise((resolve, reject) => {
         try {
-            client[func](...Object.keys(params).map(key => params[key]), (result) => {
-                if (result instanceof Error) {
-                    reject(result)
+            client[func](...Object.keys(params).map(key => params[key]), (err, result) => {
+                if (err) {
+                    reject(err)
                 } else {
                     resolve(result)
                 }
             });
-        } catch (err) {
-            reject(err)
+        } catch (e) {
+            reject(e)
         }
     })
 }

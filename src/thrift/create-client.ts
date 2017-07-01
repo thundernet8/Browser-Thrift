@@ -13,7 +13,6 @@ const createClient = (() => {
         let client = new ServiceClient(transport, connection.protocol)
         client.id = clientId
         connection.clients[clientId] = client
-        console.log(client)
         return client
     }
 })()

@@ -33,7 +33,6 @@ class WSConnection extends EventEmitter {
 
     constructor (host, port, options) {
         super()
-
         this.host = host
         this.port = port
         this.secure = !!options.secure || false
@@ -117,7 +116,6 @@ class WSConnection extends EventEmitter {
     }
 
     write = (data: any) => {
-        console.log("request: ", data.toString())
         if (this.isOpen()) {
             this.socket.send(data)
         } else {
@@ -130,7 +128,6 @@ class WSConnection extends EventEmitter {
         try {
             while (true) {
                 let header = proto.readMessageBegin()
-                console.log(header)
                 let client = this.clients[header.rseqid] || null
                 if (!client) {
                     this.emit("error", new TApplicationException(TApplicationExceptionType.MISSING_SERVICE_CLIENT, "Received a response to an unknown service client"))

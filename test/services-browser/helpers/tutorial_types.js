@@ -3,15 +3,21 @@
 //
 // DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 //
+"use strict";
+
+import Thrift from '../thrift.js'
+
+var shared_ttypes = require('./shared_types');
 
 
-Operation = {
+var ttypes = module.exports = {};
+ttypes.Operation = {
   'ADD' : 1,
   'SUBTRACT' : 2,
   'MULTIPLY' : 3,
   'DIVIDE' : 4
 };
-Work = function(args) {
+var Work = module.exports.Work = function(args) {
   this.num1 = 0;
   this.num2 = null;
   this.op = null;
@@ -47,28 +53,28 @@ Work.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I32) {
-        this.num1 = input.readI32().value;
+        this.num1 = input.readI32();
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.I32) {
-        this.num2 = input.readI32().value;
+        this.num2 = input.readI32();
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
       if (ftype == Thrift.Type.I32) {
-        this.op = input.readI32().value;
+        this.op = input.readI32();
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
       if (ftype == Thrift.Type.STRING) {
-        this.comment = input.readString().value;
+        this.comment = input.readString();
       } else {
         input.skip(ftype);
       }
@@ -109,7 +115,9 @@ Work.prototype.write = function(output) {
   return;
 };
 
-InvalidOperation = function(args) {
+var InvalidOperation = module.exports.InvalidOperation = function(args) {
+  Thrift.TException.call(this, "InvalidOperation");
+  this.name = "InvalidOperation";
   this.whatOp = null;
   this.why = null;
   if (args) {
@@ -138,14 +146,14 @@ InvalidOperation.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I32) {
-        this.whatOp = input.readI32().value;
+        this.whatOp = input.readI32();
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.why = input.readString().value;
+        this.why = input.readString();
       } else {
         input.skip(ftype);
       }
@@ -176,8 +184,8 @@ InvalidOperation.prototype.write = function(output) {
   return;
 };
 
-INT32CONSTANT = 9853;
-MAPCONSTANT = {
+ttypes.INT32CONSTANT = 9853;
+ttypes.MAPCONSTANT = {
   'hello' : 'world',
   'goodnight' : 'moon'
 };
