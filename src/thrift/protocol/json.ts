@@ -61,8 +61,8 @@ export default class TJSONProtocol implements IProtocol {
         }
     }
 
-    writeMessageBegin = (name: string, messageType: MessageType, seqid: number) => {
-        this.tstack.push([TJSONProtocol.Version, `"${name}"`, messageType, seqid])
+    writeMessageBegin = (name: string, messageType: MessageType, seqId: number, cltId: number) => {
+        this.tstack.push([TJSONProtocol.Version, `"${name}"`, messageType, seqId, cltId])
     }
 
     writeMessageEnd = () => {
@@ -287,28 +287,9 @@ export default class TJSONProtocol implements IProtocol {
         this.rstack = []
         this.rpos = []
 
-        if (this.trans.borrow === undefined) {
-            this.robj = JSON.parse(this.trans.readAll())
-
-            let r: any = {}
-            let version = this.robj.shift()
-
-            if (version !== TJSONProtocol.Version) {
-                throw new Error(`Wrong thrift protocol version: ${version}`)
-            }
-
-            r.fname = this.robj.shift()
-            r.mtype = this.robj.shift()
-            r.rseqid = this.robj.shift()
-
-            this.rstack.push(this.robj.shift())
-
-            return r
-        }
-
         let transBuf = this.trans.borrow()
         if (transBuf.readIndex >= transBuf.writeIndex) {
-            throw new InputBufferUnderrunError('');
+            throw new InputBufferUnderrunError();
         }
         let cursor = transBuf.readIndex;
 
@@ -364,6 +345,7 @@ export default class TJSONProtocol implements IProtocol {
         r.fname = this.robj.shift()
         r.mtype = this.robj.shift()
         r.rseqid = this.robj.shift()
+        r.cltid = this.robj.shift() // Service client id for finding client instance saved in connection.clients
         this.rstack.push(this.robj.shift())
         return r
     }
@@ -372,7 +354,7 @@ export default class TJSONProtocol implements IProtocol {
 
     readStructBegin = () => {
         let r: any = {}
-        r.fname = ''
+        r.fname = ""
 
         //incase this is an array of structs
         if (this.rstack[this.rstack.length - 1] instanceof Array) {
@@ -495,14 +477,7 @@ export default class TJSONProtocol implements IProtocol {
     }
 
     readBool = () => {
-        let r = this.readI32()
-
-        if (r !== null && r.value === '1') {
-            r.value = true
-        } else {
-            r.value = false
-        }
-        return r
+        return this.readValue() === "1"
     }
 
     readByte = () => {
@@ -513,7 +488,11 @@ export default class TJSONProtocol implements IProtocol {
         return this.readI32()
     }
 
-    readI32 = (f?) => {
+    readI32 = () => {
+        return +this.readValue()
+    }
+
+    readValue = (f?) => {
         if (f === undefined) {
             f = this.rstack[this.rstack.length - 1]
         }
@@ -546,7 +525,7 @@ export default class TJSONProtocol implements IProtocol {
     }
 
     readI64 = () => {
-        return this.readI32()
+        return this.readI32() // TODO
     }
 
     readDouble = () => {
@@ -554,13 +533,11 @@ export default class TJSONProtocol implements IProtocol {
     }
 
     readBinary = () => {
-        let r = this.readI32()
-        r.value = new Buffer(this.readI32(), 'base64')
-        return r
+        return new Buffer(this.readValue(), 'base64')
     }
 
     readString = () => {
-        return this.readI32()
+        return this.readValue()
     }
 
     getTransport = () => {

@@ -144,4 +144,8 @@ export default class TXHRTransport implements ITransport {
     getSendBuffer = () => {
         return this.send_buf
     }
+
+    commitPosition = () => {}
+
+    rollbackPosition = () => {}
 }

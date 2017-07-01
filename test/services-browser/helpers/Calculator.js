@@ -11,6 +11,7 @@ import {SharedServiceClient} from './SharedService.js'
 var Calculator_ping_args = function(args) {
 };
 Calculator_ping_args.prototype = {};
+
 Calculator_ping_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
@@ -377,12 +378,18 @@ Calculator_zip_result.prototype.write = function(output) {
   return;
 };
 
-var CalculatorClient = function(input, output) {
-    this.input = input;
-    this.output = (!output) ? input : output;
+var CalculatorClient = exports.Client = function(output, pClass) {
+    this.output = output;
+    this.pClass = pClass;
     this.seqid = 0;
+    this.reqs = {};
 };
 Thrift.inherits(CalculatorClient, SharedServiceClient);
+CalculatorClient.prototype.newseqid = function () {
+    return this.seqid += 1
+}
+
+CalculatorClient.prototype.seqid = function() { return this.seqid; };
 CalculatorClient.prototype.ping = function(callback) {
   this.send_ping(callback); 
   if (!callback) {
@@ -428,56 +435,42 @@ CalculatorClient.prototype.recv_ping = function() {
 
   return;
 };
+
+
 CalculatorClient.prototype.add = function(num1, num2, callback) {
-  this.send_add(num1, num2, callback); 
-  if (!callback) {
-    return this.recv_add();
-  }
+  this.seqid = this.newseqid();
+  this.reqs[this.seqid] = callback;
+  this.send_add(num1, num2);
 };
 
-CalculatorClient.prototype.send_add = function(num1, num2, callback) {
-  this.output.writeMessageBegin('add', Thrift.MessageType.CALL, this.seqid);
+CalculatorClient.prototype.send_add = function(num1, num2) {
+  var output = new this.pClass(this.output);
+  output.writeMessageBegin('add', Thrift.MessageType.CALL, this.seqid, this.id);
   var args = new Calculator_add_args();
   args.num1 = num1;
   args.num2 = num2;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  if (callback) {
-    var self = this;
-    this.output.getTransport().flush(true, function() {
-      var result = null;
-      try {
-        result = self.recv_add();
-      } catch (e) {
-        result = e;
-      }
-      callback(result);
-    });
-  } else {
-    return this.output.getTransport().flush();
-  }
+  args.write(output);
+  output.writeMessageEnd();
+  return this.output.flush();
 };
-
-CalculatorClient.prototype.recv_add = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
+CalculatorClient.prototype.recv_add = function(input,mtype,rseqid) {
+  var callback = this.reqs[rseqid] || function() {};
+  delete this.reqs[rseqid];
   if (mtype == Thrift.MessageType.EXCEPTION) {
     var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
+    x.read(input);
+    input.readMessageEnd();
+    return callback(x);
   }
   var result = new Calculator_add_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
+  result.read(input);
+  input.readMessageEnd();
 
   if (null !== result.success) {
-    return result.success;
+    return callback(null, result.success);
   }
-  throw 'add failed: unknown result';
-};
+  return callback('add failed: unknown result');
+}
 CalculatorClient.prototype.calculate = function(logid, w, callback) {
   this.send_calculate(logid, w, callback); 
   if (!callback) {

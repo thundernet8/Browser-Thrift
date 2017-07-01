@@ -25,7 +25,7 @@ export enum MessageType {
     ONEWAY
 }
 
-export enum TApplicationExceptionTyep {
+export enum TApplicationExceptionType {
     UNKNOWN,
     UNKNOWN_METHOD,
     INVALID_MESSAGE_TYPE,
@@ -36,5 +36,6 @@ export enum TApplicationExceptionTyep {
     PROTOCOL_ERROR,
     INVALID_TRANSFORM,
     INVALID_PROTOCOL,
-    UNSUPPORTED_CLIENT_TYPE
+    UNSUPPORTED_CLIENT_TYPE,
+    MISSING_SERVICE_CLIENT
 }

@@ -1,17 +1,24 @@
 import helpers from './helpers'
 
 import ThriftBrowser from '../../src/thrift'
-const transport = new ThriftBrowser.TWebSocketTransport('ws://localhost:9090/thrift/rpc')
-// const transport = new ThriftBrowser.TXHRTransport('http://localhost:9090/thrift/rpc')
-transport.open()
-// const protocol = new Thrift.TJSONProtocol(transport)
-const protocol = new ThriftBrowser.TJSONProtocol(transport)
+const { TJSONProtocol,
+    TXHRTransport,
+    TBufferedTransport,
+    createWSConnection,
+    createClient
+} = ThriftBrowser
+
+let conn = createWSConnection("localhost", 9090, {
+    path: "/thrift/rpc"
+})
+conn.open()
 
 export default function thriftRPC<T>(method, params): Promise<T> {
 	let service = method.split('.')[0];
     let func = method.split('.')[1];
 
-    let client = new helpers[service](protocol);
+    let serviceClass = helpers[service]
+    let client = createClient(helpers[service], conn)
     return new Promise((resolve, reject) => {
         try {
             client[func](...Object.keys(params).map(key => params[key]), (result) => {

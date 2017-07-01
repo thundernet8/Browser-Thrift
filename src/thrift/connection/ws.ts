@@ -1,13 +1,15 @@
 import { EventEmitter } from 'events'
-import TWebSocketTransport from '../transport/ws'
-import ITransport, { TransportClass } from '../interface/ITransport'
+import { Buffer } from 'buffer'
+import TBufferedTransport from '../transport/buffer'
 import TJSONProtocol from '../protocol/json'
 import { ProtocolClass } from '../interface/IProtocol'
-import { Buffer } from 'buffer'
-import IServiceClient, { ServiceClientClass } from '../interface/IServiceClient'
 import IConnection from '../interface/IConnection'
+import ITransport, { TransportClass } from '../interface/ITransport'
+import IServiceClient, { ServiceClientClass } from '../interface/IServiceClient'
+import { TApplicationExceptionType } from "../thrift-type"
+import { TApplicationException, InputBufferUnderrunError } from "../error"
 
-export default class WSConnection extends EventEmitter {
+class WSConnection extends EventEmitter {
 
     private host: string;
 
@@ -27,15 +29,18 @@ export default class WSConnection extends EventEmitter {
 
     private socket: WebSocket;
 
-    public client: IServiceClient;
+    public clients: {[key: string]: IServiceClient};
 
     constructor (host, port, options) {
         super()
 
+        this.host = host
+        this.port = port
         this.secure = !!options.secure || false
-        this.transport = options.transport || TWebSocketTransport
+        this.transport = options.transport || TBufferedTransport
         this.protocol = options.protocol || TJSONProtocol
         this.path = options.path || '/'
+        this.clients = {}
     }
 
     uri = () => {
@@ -78,7 +83,7 @@ export default class WSConnection extends EventEmitter {
 
         let buf = new Buffer(data)
 
-        // this.transport.recevier(this._decodeCallback.bind(this))(buf)
+        this.transport.receiver(this._decodeCallback.bind(this))(buf)
     }
 
     _onMessage = evt => {
@@ -111,11 +116,47 @@ export default class WSConnection extends EventEmitter {
         this.socket.close()
     }
 
-    write = (data: any, seqid?: number) => {
+    write = (data: any) => {
         if (this.isOpen()) {
             this.socket.send(data)
         } else {
             this.send_pending.push(data)
+        }
+    }
+
+    _decodeCallback = (trans: ITransport) => {
+        let proto = new this.protocol(trans)
+        try {
+            while (true) {
+                let header = proto.readMessageBegin()
+                let client = this.clients[header.cltid] || null
+                if (!client) {
+                    this.emit("error", new TApplicationException(TApplicationExceptionType.MISSING_SERVICE_CLIENT, "Received a response to an unknown service client"))
+                }
+                delete this.clients[header.cltid]
+
+                let clientWrappedCb = (err: Error, success: any) => {
+                    trans.commitPosition()
+                    let clientCb = client.reqs[header.rseqid]
+                    delete client.reqs[header.rseqid]
+                    if (clientCb) {
+                        clientCb(err, success)
+                    }
+                }
+                if (client["recv_" + header.fname]) {
+                    let dummy_seqid = header.rseqid * -1
+                    client.reqs[dummy_seqid] = clientWrappedCb
+                    client["recv_" + header.fname](proto, header.mtype, dummy_seqid)
+                } else {
+                    this.emit("error", new TApplicationException(TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function"))
+                }
+            }
+        } catch (e) {
+            if (e instanceof InputBufferUnderrunError) {
+                trans.rollbackPosition()
+            } else {
+                throw e
+            }
         }
     }
 }
@@ -124,15 +165,4 @@ const createWSConnection = (host, port, options) => {
     return new WSConnection(host, port, options)
 }
 
-const createWSClient = (ServiceClient: ServiceClientClass, connection: WSConnection): IServiceClient => {
-    let flushCallback = (buf: any, seqid: number) => {
-        connection.write(buf, seqid)
-    }
-    let transport = new connection.transport(flushCallback)
-    let client = new ServiceClient(transport, connection.protocol)
-
-    transport.client = client
-    connection.client = client
-
-    return client
-}
+export default createWSConnection
