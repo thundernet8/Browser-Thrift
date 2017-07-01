@@ -17,7 +17,6 @@ export default function thriftRPC<T>(method, params): Promise<T> {
 	let service = method.split('.')[0];
     let func = method.split('.')[1];
 
-    let serviceClass = helpers[service]
     let client = createClient(helpers[service], conn)
     return new Promise((resolve, reject) => {
         try {

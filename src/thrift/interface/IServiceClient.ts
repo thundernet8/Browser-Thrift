@@ -8,7 +8,6 @@ interface IServiceClient {
 
 export interface ServiceClientClass {
     new (transport: ITransport, protocol: ProtocolClass): IServiceClient;
-    name: string;
 }
 
 export default IServiceClient

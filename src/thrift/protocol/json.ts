@@ -61,8 +61,8 @@ export default class TJSONProtocol implements IProtocol {
         }
     }
 
-    writeMessageBegin = (name: string, messageType: MessageType, seqId: number, cltId: number) => {
-        this.tstack.push([TJSONProtocol.Version, `"${name}"`, messageType, seqId, cltId])
+    writeMessageBegin = (name: string, messageType: MessageType, seqId: number) => {
+        this.tstack.push([TJSONProtocol.Version, `"${name}"`, messageType, seqId])
     }
 
     writeMessageEnd = () => {
@@ -345,7 +345,6 @@ export default class TJSONProtocol implements IProtocol {
         r.fname = this.robj.shift()
         r.mtype = this.robj.shift()
         r.rseqid = this.robj.shift()
-        r.cltid = this.robj.shift() // Service client id for finding client instance saved in connection.clients
         this.rstack.push(this.robj.shift())
         return r
     }

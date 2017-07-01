@@ -5,11 +5,10 @@ interface IProtocolMsgHeader {
     fname: string;
     mtype: MessageType;
     rseqid: number;
-    cltid: number;
 }
 
 interface IProtocol {
-    writeMessageBegin: (name: string, messageType: MessageType, seqId: number, cltId: number) => void;
+    writeMessageBegin: (name: string, messageType: MessageType, seqId: number) => void;
 
     readMessageBegin: () => IProtocolMsgHeader;
 }

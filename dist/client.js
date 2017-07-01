@@ -5658,8 +5658,8 @@ var TJSONProtocol = (function () {
                 _this.trans.write(_this.tstack.pop());
             }
         };
-        this.writeMessageBegin = function (name, messageType, seqId, cltId) {
-            _this.tstack.push([TJSONProtocol.Version, "\"" + name + "\"", messageType, seqId, cltId]);
+        this.writeMessageBegin = function (name, messageType, seqId) {
+            _this.tstack.push([TJSONProtocol.Version, "\"" + name + "\"", messageType, seqId]);
         };
         this.writeMessageEnd = function () {
             var obj = _this.tstack.pop();
@@ -5855,6 +5855,7 @@ var TJSONProtocol = (function () {
             _this.rstack = [];
             _this.rpos = [];
             var transBuf = _this.trans.borrow();
+            console.log("Receive data: ", new __WEBPACK_IMPORTED_MODULE_1_buffer__["Buffer"](transBuf.buf).toString())
             if (transBuf.readIndex >= transBuf.writeIndex) {
                 throw new __WEBPACK_IMPORTED_MODULE_2__error__["a" /* InputBufferUnderrunError */]();
             }
@@ -5903,7 +5904,6 @@ var TJSONProtocol = (function () {
             r.fname = _this.robj.shift();
             r.mtype = _this.robj.shift();
             r.rseqid = _this.robj.shift();
-            r.cltid = _this.robj.shift();
             _this.rstack.push(_this.robj.shift());
             return r;
         };
@@ -11107,7 +11107,6 @@ conn.open();
 function thriftRPC(method, params) {
     var service = method.split('.')[0];
     var func = method.split('.')[1];
-    var serviceClass = __WEBPACK_IMPORTED_MODULE_0__helpers___default.a[service];
     var client = createClient(__WEBPACK_IMPORTED_MODULE_0__helpers___default.a[service], conn);
     return new Promise(function (resolve, reject) {
         try {
@@ -11582,14 +11581,14 @@ CalculatorClient.prototype.recv_ping = function () {
 };
 
 CalculatorClient.prototype.add = function (num1, num2, callback) {
-  this.seqid = this.newseqid();
+  this.seqid = this.id;
   this.reqs[this.seqid] = callback;
   this.send_add(num1, num2);
 };
 
 CalculatorClient.prototype.send_add = function (num1, num2) {
   var output = new this.pClass(this.output);
-  output.writeMessageBegin('add', _thrift2.default.MessageType.CALL, this.seqid, this.id);
+  output.writeMessageBegin('add', _thrift2.default.MessageType.CALL, this.seqid);
   var args = new Calculator_add_args();
   args.num1 = num1;
   args.num2 = num2;
@@ -13527,6 +13526,7 @@ var WSConnection = (function (_super) {
             _this._reset();
         };
         _this._onData = function (data) {
+            console.log("Receive data: ", new __WEBPACK_IMPORTED_MODULE_1_buffer__["Buffer"](data).toString())
             if (Object.prototype.toString.call(data) === '[object ArrayBuffer') {
                 data = new Uint8Array(data);
             }
@@ -13558,6 +13558,7 @@ var WSConnection = (function (_super) {
             _this.socket.close();
         };
         _this.write = function (data) {
+            console.log("request: ", data.toString());
             if (_this.isOpen()) {
                 _this.socket.send(data);
             }
@@ -13570,11 +13571,12 @@ var WSConnection = (function (_super) {
             try {
                 var _loop_1 = function () {
                     var header = proto.readMessageBegin();
-                    var client = _this.clients[header.cltid] || null;
+                    console.log(header);
+                    var client = _this.clients[header.rseqid] || null;
                     if (!client) {
                         _this.emit("error", new __WEBPACK_IMPORTED_MODULE_5__error__["b" /* TApplicationException */](__WEBPACK_IMPORTED_MODULE_4__thrift_type__["a" /* TApplicationExceptionType */].MISSING_SERVICE_CLIENT, "Received a response to an unknown service client"));
                     }
-                    delete _this.clients[header.cltid];
+                    delete _this.clients[header.rseqid];
                     var clientWrappedCb = function (err, success) {
                         trans.commitPosition();
                         var clientCb = client.reqs[header.rseqid];

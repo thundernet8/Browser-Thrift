@@ -8,7 +8,7 @@ const createClient = (() => {
         let flushCallback = (buf: any) => {
             connection.write(buf)
         }
-        
+
         let transport = new connection.transport(flushCallback)
         let client = new ServiceClient(transport, connection.protocol)
         client.id = clientId

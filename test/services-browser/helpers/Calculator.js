@@ -438,14 +438,14 @@ CalculatorClient.prototype.recv_ping = function() {
 
 
 CalculatorClient.prototype.add = function(num1, num2, callback) {
-  this.seqid = this.newseqid();
+  this.seqid = this.id;
   this.reqs[this.seqid] = callback;
   this.send_add(num1, num2);
 };
 
 CalculatorClient.prototype.send_add = function(num1, num2) {
   var output = new this.pClass(this.output);
-  output.writeMessageBegin('add', Thrift.MessageType.CALL, this.seqid, this.id);
+  output.writeMessageBegin('add', Thrift.MessageType.CALL, this.seqid);
   var args = new Calculator_add_args();
   args.num1 = num1;
   args.num2 = num2;
