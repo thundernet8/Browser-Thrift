@@ -85,7 +85,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var EventEmitter = __webpack_require__(48);
+var EventEmitter = __webpack_require__(50);
 
 var MyEmitter = function (_EventEmitter) {
     _inherits(MyEmitter, _EventEmitter);
@@ -108,7 +108,7 @@ window.myEmitter = myEmitter;
 
 /***/ }),
 
-/***/ 48:
+/***/ 50:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.

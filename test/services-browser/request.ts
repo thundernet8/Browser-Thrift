@@ -1,6 +1,6 @@
 import helpers from './helpers'
 
-import ThriftBrowser from '../../src/thrift'
+import ThriftBrowser from 'thrift-browser'
 const { TJSONProtocol,
     TBufferedTransport,
     createWSConnection,
@@ -8,14 +8,19 @@ const { TJSONProtocol,
     createClient
 } = ThriftBrowser
 
-// let conn = createWSConnection("localhost", 9090, {
-//     path: "/thrift/rpc"
-// })
-// conn.open()
-
-let conn = createXHRConnection("localhost", 9090, {
+let conn = createWSConnection("localhost", 9090, {
     path: "/thrift/rpc"
 })
+conn.open()
+
+// let conn = createXHRConnection("localhost", 9090, {
+//     path: "/thrift/rpc"
+// })
+
+conn.on("open", err => {
+    console.log("WebSockert connected to: ", conn.uri())
+})
+conn.on("error", function(err){console.dir(err)})
 
 export default function thriftRPC<T>(method, params): Promise<T> {
 	let service = method.split('.')[0];

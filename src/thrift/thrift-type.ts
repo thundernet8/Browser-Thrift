@@ -39,3 +39,13 @@ export enum TApplicationExceptionType {
     UNSUPPORTED_CLIENT_TYPE,
     MISSING_SERVICE_CLIENT
 }
+
+export enum TProtocolExceptionType {
+    UNKNOWN,
+    INVALID_DATA,
+    NEGATIVE_SIZE,
+    SIZE_LIMIT,
+    BAD_VERSION,
+    NOT_IMPLEMENTED,
+    DEPTH_LIMIT
+}
