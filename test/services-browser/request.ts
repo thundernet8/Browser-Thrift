@@ -2,16 +2,20 @@ import helpers from './helpers'
 
 import ThriftBrowser from '../../src/thrift'
 const { TJSONProtocol,
-    TXHRTransport,
     TBufferedTransport,
     createWSConnection,
+    createXHRConnection,
     createClient
 } = ThriftBrowser
 
-let conn = createWSConnection("localhost", 9090, {
+// let conn = createWSConnection("localhost", 9090, {
+//     path: "/thrift/rpc"
+// })
+// conn.open()
+
+let conn = createXHRConnection("localhost", 9090, {
     path: "/thrift/rpc"
 })
-conn.open()
 
 export default function thriftRPC<T>(method, params): Promise<T> {
 	let service = method.split('.')[0];
