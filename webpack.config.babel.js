@@ -8,7 +8,6 @@ export default {
         __dirname: false
     },
     entry: {
-        other: ["./test/other.js"],
         client: ["babel-polyfill", "./test/client.js"]
     },
     output: {
