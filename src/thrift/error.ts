@@ -2,13 +2,6 @@ import { TApplicationExceptionType, ThriftType } from "./thrift-type"
 import { inherits } from "util"
 import IProtocol from "./interface/IProtocol"
 
-// export class InputBufferUnderrunError extends Error {
-//     constructor (message?: string) {
-//         super(message)
-//         this.name = InputBufferUnderrunError.name
-//     }
-// }
-
 export function InputBufferUnderrunError(message?: string) {
     Error.call(this)
     Error.captureStackTrace(this, this.constructor)

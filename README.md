@@ -1,1 +1,4 @@
-# Browser-Thrift
+[中文说明](./README-CN.md)
+
+## Browser-Thrift
+

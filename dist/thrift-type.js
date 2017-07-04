@@ -1,0 +1,52 @@
+export var ThriftType;
+(function (ThriftType) {
+    ThriftType[ThriftType["STOP"] = 0] = "STOP";
+    ThriftType[ThriftType["VOID"] = 1] = "VOID";
+    ThriftType[ThriftType["BOOL"] = 2] = "BOOL";
+    ThriftType[ThriftType["BYTE"] = 3] = "BYTE";
+    ThriftType[ThriftType["I08"] = 3] = "I08";
+    ThriftType[ThriftType["DOUBLE"] = 4] = "DOUBLE";
+    ThriftType[ThriftType["I16"] = 6] = "I16";
+    ThriftType[ThriftType["I32"] = 8] = "I32";
+    ThriftType[ThriftType["I64"] = 10] = "I64";
+    ThriftType[ThriftType["STRING"] = 11] = "STRING";
+    ThriftType[ThriftType["UTF7"] = 11] = "UTF7";
+    ThriftType[ThriftType["STRUCT"] = 12] = "STRUCT";
+    ThriftType[ThriftType["MAP"] = 13] = "MAP";
+    ThriftType[ThriftType["SET"] = 14] = "SET";
+    ThriftType[ThriftType["LIST"] = 15] = "LIST";
+    ThriftType[ThriftType["UTF8"] = 16] = "UTF8";
+    ThriftType[ThriftType["UTF16"] = 17] = "UTF16";
+})(ThriftType || (ThriftType = {}));
+export var MessageType;
+(function (MessageType) {
+    MessageType[MessageType["CALL"] = 1] = "CALL";
+    MessageType[MessageType["REPLY"] = 2] = "REPLY";
+    MessageType[MessageType["EXCEPTION"] = 3] = "EXCEPTION";
+    MessageType[MessageType["ONEWAY"] = 4] = "ONEWAY";
+})(MessageType || (MessageType = {}));
+export var TApplicationExceptionType;
+(function (TApplicationExceptionType) {
+    TApplicationExceptionType[TApplicationExceptionType["UNKNOWN"] = 0] = "UNKNOWN";
+    TApplicationExceptionType[TApplicationExceptionType["UNKNOWN_METHOD"] = 1] = "UNKNOWN_METHOD";
+    TApplicationExceptionType[TApplicationExceptionType["INVALID_MESSAGE_TYPE"] = 2] = "INVALID_MESSAGE_TYPE";
+    TApplicationExceptionType[TApplicationExceptionType["WRONG_METHOD_NAME"] = 3] = "WRONG_METHOD_NAME";
+    TApplicationExceptionType[TApplicationExceptionType["BAD_SEQUENCE_ID"] = 4] = "BAD_SEQUENCE_ID";
+    TApplicationExceptionType[TApplicationExceptionType["MISSING_RESULT"] = 5] = "MISSING_RESULT";
+    TApplicationExceptionType[TApplicationExceptionType["INTERNAL_ERROR"] = 6] = "INTERNAL_ERROR";
+    TApplicationExceptionType[TApplicationExceptionType["PROTOCOL_ERROR"] = 7] = "PROTOCOL_ERROR";
+    TApplicationExceptionType[TApplicationExceptionType["INVALID_TRANSFORM"] = 8] = "INVALID_TRANSFORM";
+    TApplicationExceptionType[TApplicationExceptionType["INVALID_PROTOCOL"] = 9] = "INVALID_PROTOCOL";
+    TApplicationExceptionType[TApplicationExceptionType["UNSUPPORTED_CLIENT_TYPE"] = 10] = "UNSUPPORTED_CLIENT_TYPE";
+    TApplicationExceptionType[TApplicationExceptionType["MISSING_SERVICE_CLIENT"] = 11] = "MISSING_SERVICE_CLIENT";
+})(TApplicationExceptionType || (TApplicationExceptionType = {}));
+export var TProtocolExceptionType;
+(function (TProtocolExceptionType) {
+    TProtocolExceptionType[TProtocolExceptionType["UNKNOWN"] = 0] = "UNKNOWN";
+    TProtocolExceptionType[TProtocolExceptionType["INVALID_DATA"] = 1] = "INVALID_DATA";
+    TProtocolExceptionType[TProtocolExceptionType["NEGATIVE_SIZE"] = 2] = "NEGATIVE_SIZE";
+    TProtocolExceptionType[TProtocolExceptionType["SIZE_LIMIT"] = 3] = "SIZE_LIMIT";
+    TProtocolExceptionType[TProtocolExceptionType["BAD_VERSION"] = 4] = "BAD_VERSION";
+    TProtocolExceptionType[TProtocolExceptionType["NOT_IMPLEMENTED"] = 5] = "NOT_IMPLEMENTED";
+    TProtocolExceptionType[TProtocolExceptionType["DEPTH_LIMIT"] = 6] = "DEPTH_LIMIT";
+})(TProtocolExceptionType || (TProtocolExceptionType = {}));

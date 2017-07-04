@@ -16,7 +16,8 @@
             "es5",
             "es2015",
             "dom"
-        ]
+        ],
+        "outDir": "./dist"
 	},
 	"exclude": [
 		"node_modules",
