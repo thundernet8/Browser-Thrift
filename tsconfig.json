@@ -19,6 +19,9 @@
         ],
         "outDir": "./dist"
 	},
+    "include": [
+        "./src/thrift/"
+    ],
 	"exclude": [
 		"node_modules",
 		"**/*.spec.ts?"

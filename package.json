@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "repository": "git@github.com:thundernet8/Browser-Thrift.git",
-  "author": "吴学谦 <wuxueqian2010@hotmail.com>",
+  "author": "WuXueqian <wuxueqian2010@hotmail.com>",
   "license": "Apache 2.0",
   "dependencies": {
     "@types/node": "^8.0.3",
     "buffer": "^5.0.6",
-    "typescript": "^2.3.4"
+    "typescript": "^2.3.4",
+    "util": "^0.10.3"
   },
   "scripts": {
     "build": "tsc"
