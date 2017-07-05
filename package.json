@@ -1,6 +1,6 @@
 {
   "name": "browser-thrift2",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "repository": "git@github.com:thundernet8/Browser-Thrift.git",
   "author": "WuXueqian <wuxueqian2010@hotmail.com>",
