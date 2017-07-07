@@ -2,83 +2,83 @@ import ITransport from "./ITransport";
 import { MessageType, ThriftType } from "../thrift-type";
 
 interface IProtocolMsgHeader {
-  fname: string;
-  mtype: MessageType;
-  rseqid: number;
+    fname: string;
+    mtype: MessageType;
+    rseqid: number;
 }
 
 interface IProtocolFieldHeader {
-  fname: string;
-  ftype: ThriftType;
-  fid: number;
+    fname: string;
+    ftype: ThriftType;
+    fid: number;
 }
 
 interface IProtocol {
-  readMessageBegin: () => IProtocolMsgHeader;
+    readMessageBegin: () => IProtocolMsgHeader;
 
-  readFieldBegin: () => IProtocolFieldHeader;
+    readFieldBegin: () => IProtocolFieldHeader;
 
-  readFieldEnd: () => void;
+    readFieldEnd: () => void;
 
-  readStructBegin: () => void;
+    readStructBegin: () => void;
 
-  readStructEnd: () => void;
+    readStructEnd: () => void;
 
-  readBool: () => boolean;
+    readBool: () => boolean;
 
-  readByte: () => number;
+    readByte: () => number;
 
-  readI16: () => number;
+    readI16: () => number;
 
-  readI32: () => number;
+    readI32: () => number;
 
-  readI64: () => number;
+    readI64: () => number;
 
-  readDouble: () => number;
+    readDouble: () => number;
 
-  readBinary: () => string | Buffer;
+    readBinary: () => string | Buffer;
 
-  readString: () => string;
+    readString: () => string;
 
-  writeMessageBegin: (
-    name: string,
-    messageType: MessageType,
-    seqId: number
-  ) => void;
+    writeMessageBegin: (
+        name: string,
+        messageType: MessageType,
+        seqId: number
+    ) => void;
 
-  writeMessageEnd: () => void;
+    writeMessageEnd: () => void;
 
-  writeStructBegin: (struct: string) => void;
+    writeStructBegin: (struct: string) => void;
 
-  writeStructEnd: () => void;
+    writeStructEnd: () => void;
 
-  writeFieldBegin: (field: string, type: ThriftType, seq: number) => void;
+    writeFieldBegin: (field: string, type: ThriftType, seq: number) => void;
 
-  writeFieldEnd: () => void;
+    writeFieldEnd: () => void;
 
-  writeFieldStop: () => void;
+    writeFieldStop: () => void;
 
-  writeBool: (bool: boolean) => void;
+    writeBool: (bool: boolean) => void;
 
-  writeByte: (byte: number) => void;
+    writeByte: (byte: number) => void;
 
-  writeI16: (i16: number) => void;
+    writeI16: (i16: number) => void;
 
-  writeI32: (i32: number) => void;
+    writeI32: (i32: number) => void;
 
-  writeI64: (i64: number) => void;
+    writeI64: (i64: number) => void;
 
-  writeDouble: (dub: number) => void;
+    writeDouble: (dub: number) => void;
 
-  writeString: (str: string | Buffer) => void;
+    writeString: (str: string | Buffer) => void;
 
-  writeBinary: (arg: string | Buffer) => void;
+    writeBinary: (arg: string | Buffer) => void;
 
-  skip: (ftype: ThriftType) => IProtocolFieldHeader;
+    skip: (ftype: ThriftType) => IProtocolFieldHeader;
 }
 
 export interface ProtocolClass {
-  new (transport: ITransport): IProtocol;
+    new (transport: ITransport): IProtocol;
 }
 
 export default IProtocol;

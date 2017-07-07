@@ -11,7 +11,9 @@ var TBufferedTransport = (function () {
         this.outCount = 0;
         this.commitPosition = function () {
             var unreadSize = _this.writeCursor - _this.readCursor;
-            var bufSize = (unreadSize * 2 > _this.defaultBufSize) ? unreadSize * 2 : _this.defaultBufSize;
+            var bufSize = unreadSize * 2 > _this.defaultBufSize
+                ? unreadSize * 2
+                : _this.defaultBufSize;
             var buf = new Buffer(bufSize);
             if (unreadSize > 0) {
                 _this.inBuf.copy(buf, 0, _this.readCursor, _this.writeCursor);

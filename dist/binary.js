@@ -48,21 +48,21 @@ export var writeI32 = function (buf, v) {
 export var readDouble = function (buf, offset) {
     offset = offset || 0;
     var signed = buf[offset] & 0x80;
-    var e = (buf[offset + 1] & 0xF0) >> 4;
-    e += (buf[offset] & 0x7F) << 4;
+    var e = (buf[offset + 1] & 0xf0) >> 4;
+    e += (buf[offset] & 0x7f) << 4;
     var m = buf[offset + 7];
     m += buf[offset + 6] << 8;
     m += buf[offset + 5] << 16;
     m += buf[offset + 4] * POW_24;
     m += buf[offset + 3] * POW_32;
     m += buf[offset + 2] * POW_40;
-    m += (buf[offset + 1] & 0x0F) * POW_48;
+    m += (buf[offset + 1] & 0x0f) * POW_48;
     switch (e) {
         case 0:
             e = -1022;
             break;
         case 2047:
-            return m ? NaN : (signed ? -Infinity : Infinity);
+            return m ? NaN : signed ? -Infinity : Infinity;
         default:
             m += POW_52;
             e -= 1023;
@@ -74,7 +74,7 @@ export var readDouble = function (buf, offset) {
 };
 export var writeDouble = function (buf, v) {
     var m, e, c;
-    buf[0] = (v < 0 ? 0x80 : 0x00);
+    buf[0] = v < 0 ? 0x80 : 0x00;
     v = Math.abs(v);
     if (v !== v) {
         m = 2251799813685248;
@@ -100,7 +100,7 @@ export var writeDouble = function (buf, v) {
             e += 1023;
         }
         else {
-            m = (v * POW_1022) * POW_52;
+            m = v * POW_1022 * POW_52;
             e = 0;
         }
     }

@@ -1,6 +1,6 @@
-import { ThriftType } from '../thrift-type';
-import { Buffer } from 'buffer';
-import { InputBufferUnderrunError } from '../error';
+import { ThriftType } from "../thrift-type";
+import { Buffer } from "buffer";
+import { InputBufferUnderrunError } from "../error";
 var TJSONProtocol = (function () {
     function TJSONProtocol(trans) {
         var _this = this;
@@ -14,13 +14,18 @@ var TJSONProtocol = (function () {
             }
         };
         this.writeMessageBegin = function (name, messageType, seqId) {
-            _this.tstack.push([TJSONProtocol.Version, "\"" + name + "\"", messageType, seqId]);
+            _this.tstack.push([
+                TJSONProtocol.Version,
+                "\"" + name + "\"",
+                messageType,
+                seqId
+            ]);
         };
         this.writeMessageEnd = function () {
             var obj = _this.tstack.pop();
             _this.wobj = _this.tstack.pop();
             _this.wobj.push(obj);
-            _this.wbuf = "[" + _this.wobj.join(',') + "]";
+            _this.wbuf = "[" + _this.wobj.join(",") + "]";
             _this.trans.write(_this.wbuf);
         };
         this.writeStructBegin = function (name) {
@@ -30,18 +35,18 @@ var TJSONProtocol = (function () {
         this.writeStructEnd = function () {
             var p = _this.tpos.pop();
             var struct = _this.tstack[p];
-            var str = '{';
+            var str = "{";
             var first = true;
             for (var key in struct) {
                 if (first) {
                     first = false;
                 }
                 else {
-                    str += ',';
+                    str += ",";
                 }
                 str += key + ":" + struct[key];
             }
-            str += '}';
+            str += "}";
             _this.tstack[p] = str;
             _this.writeToTransportIfStackIsFlushable();
         };
@@ -55,7 +60,7 @@ var TJSONProtocol = (function () {
         this.writeFieldEnd = function () {
             var value = _this.tstack.pop();
             var fieldInfo = _this.tstack.pop();
-            if (':' + value === ':[object Object]') {
+            if (":" + value === ":[object Object]") {
                 _this.tstack[_this.tstack.length - 1][fieldInfo.fieldId] = "{" + fieldInfo.fieldType + ":" + JSON.stringify(value) + "}";
             }
             else {
@@ -64,11 +69,14 @@ var TJSONProtocol = (function () {
             _this.tpos.pop();
             _this.writeToTransportIfStackIsFlushable();
         };
-        this.writeFieldStop = function () {
-        };
+        this.writeFieldStop = function () { };
         this.writeMapBegin = function (keyType, valType, size) {
             _this.tpos.push(_this.tstack.length);
-            _this.tstack.push([TJSONProtocol.Type[keyType], TJSONProtocol.Type[valType], 0]);
+            _this.tstack.push([
+                TJSONProtocol.Type[keyType],
+                TJSONProtocol.Type[valType],
+                0
+            ]);
         };
         this.writeMapEnd = function () {
             var p = _this.tpos.pop();
@@ -76,11 +84,11 @@ var TJSONProtocol = (function () {
                 return;
             }
             if ((_this.tstack.length - p - 1) % 2 !== 0) {
-                _this.tstack.push('');
+                _this.tstack.push("");
             }
             var size = (_this.tstack.length - p - 1) / 2;
             _this.tstack[p][_this.tstack[p].length - 1] = size;
-            var map = '}';
+            var map = "}";
             var first = true;
             while (_this.tstack.length > p + 1) {
                 var v = _this.tstack.pop();
@@ -89,16 +97,16 @@ var TJSONProtocol = (function () {
                     first = false;
                 }
                 else {
-                    map = ',' + map;
+                    map = "," + map;
                 }
                 if (!isNaN(k)) {
                     k = "\"" + k + "\"";
                 }
                 map = k + ":" + v + map;
             }
-            map = '{' + map;
+            map = "{" + map;
             _this.tstack[p].push(map);
-            _this.tstack[p] = "[" + _this.tstack[p].join(',') + "]";
+            _this.tstack[p] = "[" + _this.tstack[p].join(",") + "]";
             _this.writeToTransportIfStackIsFlushable();
         };
         this.writeListBegin = function (elemType, size) {
@@ -112,7 +120,7 @@ var TJSONProtocol = (function () {
                 _this.tstack.splice(p + 1, 1);
                 _this.tstack[p].push(tmpVal);
             }
-            _this.tstack[p] = "[" + _this.tstack[p].join(',') + "]";
+            _this.tstack[p] = "[" + _this.tstack[p].join(",") + "]";
             _this.writeToTransportIfStackIsFlushable();
         };
         this.writeSetBegin = function (elemType, size) {
@@ -126,7 +134,7 @@ var TJSONProtocol = (function () {
                 _this.tstack.splice(p + 1, 1);
                 _this.tstack[p].push(tmpVal);
             }
-            _this.tstack[p] = "[" + _this.tstack[p].join(',') + "]";
+            _this.tstack[p] = "[" + _this.tstack[p].join(",") + "]";
             _this.writeToTransportIfStackIsFlushable();
         };
         this.writeBool = function (bool) {
@@ -153,38 +161,38 @@ var TJSONProtocol = (function () {
             }
             else {
                 var str = void 0;
-                if (typeof arg === 'string') {
+                if (typeof arg === "string") {
                     str = arg;
                 }
                 else if (arg instanceof Buffer) {
-                    str = arg.toString('utf8');
+                    str = arg.toString("utf8");
                 }
                 else {
                     throw new Error("writeString called without a string/Buffer argument: " + arg);
                 }
-                var escapedString = '';
+                var escapedString = "";
                 for (var i = 0; i < str.length; i++) {
                     var ch = str.charAt(i);
-                    if (ch === '\"') {
-                        escapedString += '\\\"';
+                    if (ch === '"') {
+                        escapedString += '\\"';
                     }
-                    else if (ch === '\\') {
-                        escapedString += '\\\\';
+                    else if (ch === "\\") {
+                        escapedString += "\\\\";
                     }
-                    else if (ch === '\b') {
-                        escapedString += '\\b';
+                    else if (ch === "\b") {
+                        escapedString += "\\b";
                     }
-                    else if (ch === '\f') {
-                        escapedString += '\\f';
+                    else if (ch === "\f") {
+                        escapedString += "\\f";
                     }
-                    else if (ch === '\n') {
-                        escapedString += '\\n';
+                    else if (ch === "\n") {
+                        escapedString += "\\n";
                     }
-                    else if (ch === '\r') {
-                        escapedString += '\\r';
+                    else if (ch === "\r") {
+                        escapedString += "\\r";
                     }
-                    else if (ch === '\t') {
-                        escapedString += '\\t';
+                    else if (ch === "\t") {
+                        escapedString += "\\t";
                     }
                     else {
                         escapedString += ch;
@@ -195,16 +203,17 @@ var TJSONProtocol = (function () {
         };
         this.writeBinary = function (arg) {
             var buf;
-            if (typeof arg === 'string') {
-                buf = new Buffer(arg, 'binary');
+            if (typeof arg === "string") {
+                buf = new Buffer(arg, "binary");
             }
-            else if (arg instanceof Buffer || Object.prototype.toString.call(arg) === '[object Uint8Array]') {
+            else if (arg instanceof Buffer ||
+                Object.prototype.toString.call(arg) === "[object Uint8Array]") {
                 buf = arg;
             }
             else {
                 throw new Error("writeBinary called without a string/Buffer argument: " + arg);
             }
-            _this.tstack.push("\"" + buf.toString('base64') + "\"");
+            _this.tstack.push("\"" + buf.toString("base64") + "\"");
         };
         this.readMessageBegin = function () {
             _this.rstack = [];
@@ -214,7 +223,7 @@ var TJSONProtocol = (function () {
                 throw new InputBufferUnderrunError();
             }
             var cursor = transBuf.readIndex;
-            if (transBuf.buf[cursor] !== 0x5B) {
+            if (transBuf.buf[cursor] !== 0x5b) {
                 throw new Error("Malformed JSON input, no opening bracket");
             }
             cursor++;
@@ -226,15 +235,15 @@ var TJSONProtocol = (function () {
                     if (chr === 0x22) {
                         inString = false;
                     }
-                    else if (chr === 0x5C) {
+                    else if (chr === 0x5c) {
                         cursor += 1;
                     }
                 }
                 else {
-                    if (chr === 0x5B) {
+                    if (chr === 0x5b) {
                         openBracketCount += 1;
                     }
-                    else if (chr === 0x5D) {
+                    else if (chr === 0x5d) {
                         openBracketCount -= 1;
                         if (openBracketCount === 0) {
                             break;
@@ -252,7 +261,7 @@ var TJSONProtocol = (function () {
             _this.trans.consume(cursor + 1 - transBuf.readIndex);
             var version = _this.robj.shift();
             if (version != TJSONProtocol.Version) {
-                throw new Error('Wrong thrift protocol version: ' + version);
+                throw new Error("Wrong thrift protocol version: " + version);
             }
             var r = {};
             r.fname = _this.robj.shift();
@@ -277,7 +286,7 @@ var TJSONProtocol = (function () {
             var r = {};
             var fid = -1;
             var ftype = ThriftType.STOP;
-            for (var f in (_this.rstack[_this.rstack.length - 1])) {
+            for (var f in _this.rstack[_this.rstack.length - 1]) {
                 if (f === null) {
                     continue;
                 }
@@ -289,7 +298,7 @@ var TJSONProtocol = (function () {
                 break;
             }
             if (fid != -1) {
-                for (var i in (_this.rstack[_this.rstack.length - 1])) {
+                for (var i in _this.rstack[_this.rstack.length - 1]) {
                     if (TJSONProtocol.RType[i] === null) {
                         continue;
                     }
@@ -297,7 +306,7 @@ var TJSONProtocol = (function () {
                     _this.rstack[_this.rstack.length - 1] = _this.rstack[_this.rstack.length - 1][i];
                 }
             }
-            r.fname = '';
+            r.fname = "";
             r.ftype = ftype;
             r.fid = fid;
             return r;
@@ -399,7 +408,7 @@ var TJSONProtocol = (function () {
             return _this.readI32();
         };
         this.readBinary = function () {
-            return new Buffer(_this.readValue(), 'base64');
+            return new Buffer(_this.readValue(), "base64");
         };
         this.readString = function () {
             return _this.readValue();
@@ -442,7 +451,8 @@ var TJSONProtocol = (function () {
                     ret = _this.readMapBegin();
                     for (i = 0; i < ret.size; i++) {
                         if (i > 0) {
-                            if (_this.rstack.length > _this.rpos[_this.rpos.length - 1] + 1) {
+                            if (_this.rstack.length >
+                                _this.rpos[_this.rpos.length - 1] + 1) {
                                 _this.rstack.pop();
                             }
                         }

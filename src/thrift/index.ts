@@ -17,14 +17,19 @@
  * under the License.
  */
 
-import TBufferedTransport from "./transport/buffer"
-import TJSONProtocol from "./protocol/json"
-import createWSConnection from "./connection/ws"
-import createXHRConnection from "./connection/xhr"
-import createClient from "./create-client"
+import TBufferedTransport from "./transport/buffer";
+import TJSONProtocol from "./protocol/json";
+import createWSConnection from "./connection/ws";
+import createXHRConnection from "./connection/xhr";
+import createClient from "./create-client";
 
-import { ThriftType, MessageType, TApplicationExceptionType, TProtocolExceptionType} from "./thrift-type"
-import { TApplicationException, TException } from "./error"
+import {
+    ThriftType,
+    MessageType,
+    TApplicationExceptionType,
+    TProtocolExceptionType
+} from "./thrift-type";
+import { TApplicationException, TException } from "./error";
 
 export default {
     Protocol: TJSONProtocol,
@@ -39,4 +44,4 @@ export default {
     TProtocolExceptionType,
     TApplicationException,
     TException
-}
+};

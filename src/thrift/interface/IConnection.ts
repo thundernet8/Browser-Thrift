@@ -1,9 +1,9 @@
-import { TransportClass } from './ITransport'
-import IServiceClient from "./IServiceClient"
-import { ProtocolClass } from "./IProtocol"
+import { TransportClass } from "./ITransport";
+import IServiceClient from "./IServiceClient";
+import { ProtocolClass } from "./IProtocol";
 
 interface IConnection {
-    clients: {[key: string]: IServiceClient};
+    clients: { [key: string]: IServiceClient };
 
     transport: TransportClass;
 
@@ -13,9 +13,9 @@ interface IConnection {
 
     isOpen: () => boolean;
 
-    open()
+    open();
 
-    close()
+    close();
 }
 
-export default IConnection
+export default IConnection;

@@ -1,32 +1,20 @@
 {
-	"compilerOptions": {
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"allowJs": true,
-		"target": "es5",
-		"noImplicitAny": false,
-		"removeComments": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"strictNullChecks": false,
-		"noUnusedLocals": false,
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true,
+        "target": "es5",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strictNullChecks": false,
+        "noUnusedLocals": false,
         "module": "es2015",
-        "lib": [
-            "scripthost",
-            "es5",
-            "es2015",
-            "dom"
-        ],
+        "lib": ["scripthost", "es5", "es2015", "dom"],
         "outDir": "./dist"
-	},
-    "include": [
-        "./src/thrift/"
-    ],
-	"exclude": [
-		"node_modules",
-		"**/*.spec.ts?"
-	],
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    },
+    "include": ["./src/thrift/"],
+    "exclude": ["node_modules", "**/*.spec.ts?"],
+    "typeRoots": ["node_modules/@types"]
 }

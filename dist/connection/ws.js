@@ -8,10 +8,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { EventEmitter } from 'events';
-import { Buffer } from 'buffer';
-import TBufferedTransport from '../transport/buffer';
-import TJSONProtocol from '../protocol/json';
+import { EventEmitter } from "events";
+import { Buffer } from "buffer";
+import TBufferedTransport from "../transport/buffer";
+import TJSONProtocol from "../protocol/json";
 import { TApplicationExceptionType } from "../thrift-type";
 import { TApplicationException, InputBufferUnderrunError } from "../error";
 var WSConnection = (function (_super) {
@@ -21,22 +21,23 @@ var WSConnection = (function (_super) {
         _this.send_pending = [];
         _this.seqId2Service = {};
         _this.uri = function () {
-            var scheme = _this.secure ? 'wss' : 'ws';
-            var port = '';
-            var path = _this.path || '/';
+            var scheme = _this.secure ? "wss" : "ws";
+            var port = "";
+            var path = _this.path || "/";
             var host = _this.host;
-            if (_this.port && (('wss' === scheme && _this.port !== 443) ||
-                ('ws' === scheme && _this.port != 80))) {
-                port = ':' + _this.port;
+            if (_this.port &&
+                (("wss" === scheme && _this.port !== 443) ||
+                    ("ws" === scheme && _this.port != 80))) {
+                port = ":" + _this.port;
             }
-            return scheme + '://' + host + port + path;
+            return scheme + "://" + host + port + path;
         };
         _this._reset = function () {
             _this.socket = null;
             _this.send_pending = [];
         };
         _this._onOpen = function () {
-            _this.emit('open');
+            _this.emit("open");
             if (_this.send_pending.length > 0) {
                 _this.send_pending.forEach(function (data) {
                     _this.socket.send(data);
@@ -44,11 +45,11 @@ var WSConnection = (function (_super) {
             }
         };
         _this._onClose = function () {
-            _this.emit('close');
+            _this.emit("close");
             _this._reset();
         };
         _this._onData = function (data) {
-            if (Object.prototype.toString.call(data) === '[object ArrayBuffer') {
+            if (Object.prototype.toString.call(data) === "[object ArrayBuffer") {
                 data = new Uint8Array(data);
             }
             var buf = new Buffer(data);
@@ -58,7 +59,7 @@ var WSConnection = (function (_super) {
             _this._onData(evt.data);
         };
         _this._onError = function (evt) {
-            _this.emit('error', evt);
+            _this.emit("error", evt);
             _this.socket.close();
         };
         _this.isOpen = function () {
@@ -69,7 +70,7 @@ var WSConnection = (function (_super) {
                 return;
             }
             _this.socket = new WebSocket(_this.uri());
-            _this.socket.binaryType = 'arraybuffer';
+            _this.socket.binaryType = "arraybuffer";
             _this.socket.onopen = _this._onOpen;
             _this.socket.onmessage = _this._onMessage;
             _this.socket.onerror = _this._onError;
@@ -131,7 +132,7 @@ var WSConnection = (function (_super) {
         _this.secure = !!options.secure || false;
         _this.transport = options.transport || TBufferedTransport;
         _this.protocol = options.protocol || TJSONProtocol;
-        _this.path = options.path || '/';
+        _this.path = options.path || "/";
         _this.clients = {};
         return _this;
     }

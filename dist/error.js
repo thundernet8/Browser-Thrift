@@ -67,14 +67,14 @@ var TApplicationException = (function (_super) {
             input.readStructEnd();
         };
         _this.write = function (output) {
-            output.writeStructBegin('TApplicationException');
+            output.writeStructBegin("TApplicationException");
             if (this.message) {
-                output.writeFieldBegin('message', ThriftType.STRING, 1);
+                output.writeFieldBegin("message", ThriftType.STRING, 1);
                 output.writeString(this.getMessage());
                 output.writeFieldEnd();
             }
             if (this.code) {
-                output.writeFieldBegin('type', ThriftType.I32, 2);
+                output.writeFieldBegin("type", ThriftType.I32, 2);
                 output.writeI32(this.code);
                 output.writeFieldEnd();
             }

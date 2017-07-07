@@ -8,10 +8,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { EventEmitter } from 'events';
-import { Buffer } from 'buffer';
-import TBufferedTransport from '../transport/buffer';
-import TJSONProtocol from '../protocol/json';
+import { EventEmitter } from "events";
+import { Buffer } from "buffer";
+import TBufferedTransport from "../transport/buffer";
+import TJSONProtocol from "../protocol/json";
 import { TApplicationExceptionType } from "../thrift-type";
 import { TApplicationException, InputBufferUnderrunError } from "../error";
 var XHRConnection = (function (_super) {
@@ -21,15 +21,16 @@ var XHRConnection = (function (_super) {
         var _this = _super.call(this) || this;
         _this.seqId2Service = {};
         _this.uri = function () {
-            var scheme = _this.secure ? 'https' : 'http';
-            var port = '';
-            var path = _this.path || '/';
+            var scheme = _this.secure ? "https" : "http";
+            var port = "";
+            var path = _this.path || "/";
             var host = _this.host;
-            if (_this.port && (('https' === scheme && _this.port !== 443) ||
-                ('http' === scheme && _this.port != 80))) {
-                port = ':' + _this.port;
+            if (_this.port &&
+                (("https" === scheme && _this.port !== 443) ||
+                    ("http" === scheme && _this.port != 80))) {
+                port = ":" + _this.port;
             }
-            return scheme + '://' + host + port + path;
+            return scheme + "://" + host + port + path;
         };
         _this.getXmlHttpRequestObject = function () {
             try {
@@ -37,19 +38,19 @@ var XHRConnection = (function (_super) {
             }
             catch (e) { }
             try {
-                return new ActiveXObject('Msxml2.XMLHTTP');
+                return new ActiveXObject("Msxml2.XMLHTTP");
             }
             catch (e) { }
             try {
-                return new ActiveXObject('Microsoft.XMLHTTP');
+                return new ActiveXObject("Microsoft.XMLHTTP");
             }
             catch (e) { }
-            throw new Error('Your browser does not support XHR.');
+            throw new Error("Your browser does not support XHR.");
         };
         _this._onOpen = function () { };
         _this._onClose = function () { };
         _this._onData = function (data) {
-            if (Object.prototype.toString.call(data) === '[object ArrayBuffer') {
+            if (Object.prototype.toString.call(data) === "[object ArrayBuffer") {
                 data = new Uint8Array(data);
             }
             var buf = new Buffer(data);
@@ -134,7 +135,7 @@ var XHRConnection = (function (_super) {
         _this.transport = options.transport || TBufferedTransport;
         _this.protocol = options.protocol || TJSONProtocol;
         _this.headers = options.headers || {};
-        _this.path = options.path || '/';
+        _this.path = options.path || "/";
         _this.clients = {};
         return _this;
     }

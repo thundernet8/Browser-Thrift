@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import ITransport from '../interface/ITransport'
-import IProtocol from '../interface/IProtocol'
-import { ThriftType, MessageType } from '../thrift-type'
-import { Buffer } from 'buffer'
-import { InputBufferUnderrunError } from '../error'
+import ITransport from "../interface/ITransport";
+import IProtocol from "../interface/IProtocol";
+import { ThriftType, MessageType } from "../thrift-type";
+import { Buffer } from "buffer";
+import { InputBufferUnderrunError } from "../error";
 
 export default class TJSONProtocol implements IProtocol {
     private tstack: any[];
@@ -45,7 +45,7 @@ export default class TJSONProtocol implements IProtocol {
         [ThriftType.MAP]: '"map"',
         [ThriftType.LIST]: '"lst"',
         [ThriftType.SET]: '"set"'
-    }
+    };
 
     static RType = {
         tf: ThriftType.BOOL,
@@ -59,578 +59,620 @@ export default class TJSONProtocol implements IProtocol {
         map: ThriftType.MAP,
         lst: ThriftType.LIST,
         set: ThriftType.SET
-    }
+    };
 
-    static Version = 1
+    static Version = 1;
 
-    constructor (trans: ITransport) {
-        this.tstack = []
-        this.tpos = []
-        this.trans = trans
+    constructor(trans: ITransport) {
+        this.tstack = [];
+        this.tpos = [];
+        this.trans = trans;
     }
 
     flush = () => {
-        this.writeToTransportIfStackIsFlushable()
-        return this.trans.flush()
-    }
+        this.writeToTransportIfStackIsFlushable();
+        return this.trans.flush();
+    };
 
     writeToTransportIfStackIsFlushable = () => {
         if (this.tstack.length === 1) {
-            this.trans.write(this.tstack.pop())
+            this.trans.write(this.tstack.pop());
         }
-    }
+    };
 
-    writeMessageBegin = (name: string, messageType: MessageType, seqId: number) => {
-        this.tstack.push([TJSONProtocol.Version, `"${name}"`, messageType, seqId])
-    }
+    writeMessageBegin = (
+        name: string,
+        messageType: MessageType,
+        seqId: number
+    ) => {
+        this.tstack.push([
+            TJSONProtocol.Version,
+            `"${name}"`,
+            messageType,
+            seqId
+        ]);
+    };
 
     writeMessageEnd = () => {
-        let obj = this.tstack.pop()
+        let obj = this.tstack.pop();
 
-        this.wobj = this.tstack.pop()
-        this.wobj.push(obj)
+        this.wobj = this.tstack.pop();
+        this.wobj.push(obj);
 
-        this.wbuf = `[${this.wobj.join(',')}]`
+        this.wbuf = `[${this.wobj.join(",")}]`;
 
-        this.trans.write(this.wbuf)
-    }
+        this.trans.write(this.wbuf);
+    };
 
     writeStructBegin = (name: string) => {
-        this.tpos.push(this.tstack.length)
-        this.tstack.push({})
-    }
+        this.tpos.push(this.tstack.length);
+        this.tstack.push({});
+    };
 
     writeStructEnd = () => {
-        let p = this.tpos.pop()
-        let struct = this.tstack[p]
-        let str = '{'
-        let first = true
+        let p = this.tpos.pop();
+        let struct = this.tstack[p];
+        let str = "{";
+        let first = true;
         for (let key in struct) {
             if (first) {
-                first = false
+                first = false;
             } else {
-                str += ','
+                str += ",";
             }
-            str += `${key}:${struct[key]}`
+            str += `${key}:${struct[key]}`;
         }
-        str += '}'
-        this.tstack[p] = str
+        str += "}";
+        this.tstack[p] = str;
 
-        this.writeToTransportIfStackIsFlushable()
-    }
+        this.writeToTransportIfStackIsFlushable();
+    };
 
-    writeFieldBegin = (name: string, fieldType: ThriftType, fieldId: number) => {
-        this.tpos.push(this.tstack.length)
+    writeFieldBegin = (
+        name: string,
+        fieldType: ThriftType,
+        fieldId: number
+    ) => {
+        this.tpos.push(this.tstack.length);
         this.tstack.push({
             fieldId: `"${fieldId}"`,
             fieldType: TJSONProtocol.Type[fieldType]
-        })
-    }
+        });
+    };
 
     writeFieldEnd = () => {
-        let value = this.tstack.pop()
-        let fieldInfo = this.tstack.pop()
+        let value = this.tstack.pop();
+        let fieldInfo = this.tstack.pop();
 
-        if (':' + value === ':[object Object]') {
-            this.tstack[this.tstack.length - 1][fieldInfo.fieldId] = `{${fieldInfo.fieldType}:${JSON.stringify(value)}}`
+        if (":" + value === ":[object Object]") {
+            this.tstack[this.tstack.length - 1][
+                fieldInfo.fieldId
+            ] = `{${fieldInfo.fieldType}:${JSON.stringify(value)}}`;
         } else {
-            this.tstack[this.tstack.length - 1][fieldInfo.fieldId] = `{${fieldInfo.fieldType}:${value}}`
+            this.tstack[this.tstack.length - 1][
+                fieldInfo.fieldId
+            ] = `{${fieldInfo.fieldType}:${value}}`;
         }
-        this.tpos.pop()
+        this.tpos.pop();
 
-        this.writeToTransportIfStackIsFlushable()
-    }
+        this.writeToTransportIfStackIsFlushable();
+    };
 
-    writeFieldStop = () => {
+    writeFieldStop = () => {};
 
-    }
-
-    writeMapBegin = (keyType: ThriftType, valType: ThriftType, size: number) => {
-        this.tpos.push(this.tstack.length)
-        this.tstack.push([TJSONProtocol.Type[keyType], TJSONProtocol.Type[valType], 0])
-    }
+    writeMapBegin = (
+        keyType: ThriftType,
+        valType: ThriftType,
+        size: number
+    ) => {
+        this.tpos.push(this.tstack.length);
+        this.tstack.push([
+            TJSONProtocol.Type[keyType],
+            TJSONProtocol.Type[valType],
+            0
+        ]);
+    };
 
     writeMapEnd = () => {
-        let p = this.tpos.pop()
+        let p = this.tpos.pop();
 
         if (p === this.tstack.length) {
-            return
+            return;
         }
 
         if ((this.tstack.length - p - 1) % 2 !== 0) {
-            this.tstack.push('')
+            this.tstack.push("");
         }
 
-        let size = (this.tstack.length - p - 1) / 2
-        this.tstack[p][this.tstack[p].length - 1] = size
+        let size = (this.tstack.length - p - 1) / 2;
+        this.tstack[p][this.tstack[p].length - 1] = size;
 
-        let map = '}'
-        let first = true
+        let map = "}";
+        let first = true;
         while (this.tstack.length > p + 1) {
-            let v = this.tstack.pop()
-            let k = this.tstack.pop()
+            let v = this.tstack.pop();
+            let k = this.tstack.pop();
             if (first) {
-                first = false
+                first = false;
             } else {
-                map = ',' + map
+                map = "," + map;
             }
 
-            if ( !isNaN(k)) {
-                k = `"${k}"`
+            if (!isNaN(k)) {
+                k = `"${k}"`;
             }
 
-            map = `${k}:${v}${map}`
+            map = `${k}:${v}${map}`;
         }
 
-        map = '{' + map
+        map = "{" + map;
 
-        this.tstack[p].push(map)
-        this.tstack[p] = `[${this.tstack[p].join(',')}]`
+        this.tstack[p].push(map);
+        this.tstack[p] = `[${this.tstack[p].join(",")}]`;
 
-        this.writeToTransportIfStackIsFlushable()
-    }
+        this.writeToTransportIfStackIsFlushable();
+    };
 
     writeListBegin = (elemType: ThriftType, size: number) => {
-        this.tpos.push(this.tstack.length)
-        this.tstack.push([TJSONProtocol.Type[elemType], size])
-    }
+        this.tpos.push(this.tstack.length);
+        this.tstack.push([TJSONProtocol.Type[elemType], size]);
+    };
 
     writeListEnd = () => {
-        let p = this.tpos.pop()
+        let p = this.tpos.pop();
 
         while (this.tstack.length > p + 1) {
-            let tmpVal = this.tstack[p + 1]
-            this.tstack.splice(p + 1, 1)
-            this.tstack[p].push(tmpVal)
+            let tmpVal = this.tstack[p + 1];
+            this.tstack.splice(p + 1, 1);
+            this.tstack[p].push(tmpVal);
         }
 
-        this.tstack[p] = `[${this.tstack[p].join(',')}]`
+        this.tstack[p] = `[${this.tstack[p].join(",")}]`;
 
-        this.writeToTransportIfStackIsFlushable()
-    }
+        this.writeToTransportIfStackIsFlushable();
+    };
 
     writeSetBegin = (elemType: ThriftType, size: number) => {
-        this.tpos.push(this.tstack.length)
-        this.tstack.push([TJSONProtocol.Type[elemType], size])
-    }
+        this.tpos.push(this.tstack.length);
+        this.tstack.push([TJSONProtocol.Type[elemType], size]);
+    };
 
     writeSetEnd = () => {
-        let p = this.tpos.pop()
+        let p = this.tpos.pop();
 
         while (this.tstack.length > p + 1) {
-            let tmpVal = this.tstack[p + 1]
-            this.tstack.splice(p + 1, 1)
-            this.tstack[p].push(tmpVal)
+            let tmpVal = this.tstack[p + 1];
+            this.tstack.splice(p + 1, 1);
+            this.tstack[p].push(tmpVal);
         }
 
-        this.tstack[p] = `[${this.tstack[p].join(',')}]`
+        this.tstack[p] = `[${this.tstack[p].join(",")}]`;
 
-        this.writeToTransportIfStackIsFlushable()
-    }
+        this.writeToTransportIfStackIsFlushable();
+    };
 
     writeBool = (bool: boolean) => {
-        this.tstack.push(bool ? 1 : 0)
-    }
+        this.tstack.push(bool ? 1 : 0);
+    };
 
     writeByte = (byte: number) => {
-        this.tstack.push(byte)
-    }
+        this.tstack.push(byte);
+    };
 
     writeI16 = (i16: number) => {
-        this.tstack.push(i16)
-    }
+        this.tstack.push(i16);
+    };
 
     writeI32 = (i32: number) => {
-        this.tstack.push(i32)
-    }
+        this.tstack.push(i32);
+    };
 
     writeI64 = (i64: number) => {
-        this.tstack.push(i64)
-    }
+        this.tstack.push(i64);
+    };
 
     writeDouble = (dub: number) => {
-        this.tstack.push(dub)
-    }
+        this.tstack.push(dub);
+    };
 
-    writeString = (arg: string|Buffer) => {
+    writeString = (arg: string | Buffer) => {
         if (arg === null) {
-            this.tstack.push(null)
+            this.tstack.push(null);
         } else {
-            let str: string
-            if (typeof arg === 'string') {
-                str = arg
+            let str: string;
+            if (typeof arg === "string") {
+                str = arg;
             } else if (arg instanceof Buffer) {
-                str = arg.toString('utf8')
+                str = arg.toString("utf8");
             } else {
-                throw new Error(`writeString called without a string/Buffer argument: ${arg}`)
+                throw new Error(
+                    `writeString called without a string/Buffer argument: ${arg}`
+                );
             }
 
-            let escapedString = ''
+            let escapedString = "";
             for (let i = 0; i < str.length; i++) {
-                let ch = str.charAt(i)
-                if (ch === '\"') {
-                    escapedString += '\\\"'
-                } else if (ch === '\\') {
-                    escapedString += '\\\\'
-                } else if (ch === '\b') {
-                    escapedString += '\\b'
-                } else if (ch === '\f') {
-                    escapedString += '\\f'
-                } else if (ch === '\n') {
-                    escapedString += '\\n'
-                } else if (ch === '\r') {
-                    escapedString += '\\r'
-                } else if (ch === '\t') {
-                    escapedString += '\\t'
+                let ch = str.charAt(i);
+                if (ch === '"') {
+                    escapedString += '\\"';
+                } else if (ch === "\\") {
+                    escapedString += "\\\\";
+                } else if (ch === "\b") {
+                    escapedString += "\\b";
+                } else if (ch === "\f") {
+                    escapedString += "\\f";
+                } else if (ch === "\n") {
+                    escapedString += "\\n";
+                } else if (ch === "\r") {
+                    escapedString += "\\r";
+                } else if (ch === "\t") {
+                    escapedString += "\\t";
                 } else {
-                    escapedString += ch
+                    escapedString += ch;
                 }
             }
-            this.tstack.push(`"${escapedString}"`)
+            this.tstack.push(`"${escapedString}"`);
         }
-    }
+    };
 
-    writeBinary = (arg: string|Buffer) => {
-        let buf: Buffer
-        if (typeof arg === 'string') {
-            buf = new Buffer(arg, 'binary')
-        } else if (arg instanceof Buffer || Object.prototype.toString.call(arg) === '[object Uint8Array]') {
-            buf = arg
+    writeBinary = (arg: string | Buffer) => {
+        let buf: Buffer;
+        if (typeof arg === "string") {
+            buf = new Buffer(arg, "binary");
+        } else if (
+            arg instanceof Buffer ||
+            Object.prototype.toString.call(arg) === "[object Uint8Array]"
+        ) {
+            buf = arg;
         } else {
-            throw new Error(`writeBinary called without a string/Buffer argument: ${arg}`)
+            throw new Error(
+                `writeBinary called without a string/Buffer argument: ${arg}`
+            );
         }
-        this.tstack.push(`"${buf.toString('base64')}"`)
-    }
+        this.tstack.push(`"${buf.toString("base64")}"`);
+    };
 
     readMessageBegin = () => {
-        this.rstack = []
-        this.rpos = []
+        this.rstack = [];
+        this.rpos = [];
 
-        let transBuf = this.trans.borrow()
+        let transBuf = this.trans.borrow();
         if (transBuf.readIndex >= transBuf.writeIndex) {
             throw new InputBufferUnderrunError();
         }
         let cursor = transBuf.readIndex;
 
-        if (transBuf.buf[cursor] !== 0x5B) { //[
+        if (transBuf.buf[cursor] !== 0x5b) {
+            //[
             throw new Error("Malformed JSON input, no opening bracket");
         }
 
-        cursor++
-        let openBracketCount = 1
-        let inString = false
+        cursor++;
+        let openBracketCount = 1;
+        let inString = false;
         for (; cursor < transBuf.writeIndex; cursor++) {
-            let chr = transBuf.buf[cursor]
+            let chr = transBuf.buf[cursor];
             if (inString) {
-                if (chr === 0x22) { //"
-                    inString = false
-                } else if (chr === 0x5C) { //\
+                if (chr === 0x22) {
+                    //"
+                    inString = false;
+                } else if (chr === 0x5c) {
+                    //\
                     //escaped character, skip
-                    cursor += 1
+                    cursor += 1;
                 }
             } else {
-                if (chr === 0x5B) { //[
-                    openBracketCount += 1
-                } else if (chr === 0x5D) { //]
-                    openBracketCount -= 1
+                if (chr === 0x5b) {
+                    //[
+                    openBracketCount += 1;
+                } else if (chr === 0x5d) {
+                    //]
+                    openBracketCount -= 1;
                     if (openBracketCount === 0) {
-                    //end of json message detected
-                    break
+                        //end of json message detected
+                        break;
                     }
-                } else if (chr === 0x22) { //"
-                    inString = true
+                } else if (chr === 0x22) {
+                    //"
+                    inString = true;
                 }
             }
         }
 
         if (openBracketCount !== 0) {
             // Missing closing bracket. Can be buffer underrun.
-            throw new InputBufferUnderrunError()
+            throw new InputBufferUnderrunError();
         }
 
         //Reconstitute the JSON object and conume the necessary bytes
-        this.robj = JSON.parse(transBuf.buf.slice(transBuf.readIndex, cursor + 1).toString())
-        this.trans.consume(cursor + 1 - transBuf.readIndex)
+        this.robj = JSON.parse(
+            transBuf.buf.slice(transBuf.readIndex, cursor + 1).toString()
+        );
+        this.trans.consume(cursor + 1 - transBuf.readIndex);
 
         //Verify the protocol version
-        let version = this.robj.shift()
+        let version = this.robj.shift();
         if (version != TJSONProtocol.Version) {
-            throw new Error('Wrong thrift protocol version: ' + version);
+            throw new Error("Wrong thrift protocol version: " + version);
         }
 
         //Objectify the thrift message {name/type/sequence-number} for return
         // and then save the JSON object in rstack
-        let r: any = {}
-        r.fname = this.robj.shift()
-        r.mtype = this.robj.shift()
-        r.rseqid = this.robj.shift()
-        this.rstack.push(this.robj.shift())
-        return r
-    }
+        let r: any = {};
+        r.fname = this.robj.shift();
+        r.mtype = this.robj.shift();
+        r.rseqid = this.robj.shift();
+        this.rstack.push(this.robj.shift());
+        return r;
+    };
 
-    readMessageEnd = () => {}
+    readMessageEnd = () => {};
 
     readStructBegin = () => {
-        let r: any = {}
-        r.fname = ""
+        let r: any = {};
+        r.fname = "";
 
         //incase this is an array of structs
         if (this.rstack[this.rstack.length - 1] instanceof Array) {
-            this.rstack.push(this.rstack[this.rstack.length - 1].shift())
+            this.rstack.push(this.rstack[this.rstack.length - 1].shift());
         }
 
-        return r
-    }
+        return r;
+    };
 
     readStructEnd = () => {
-        this.rstack.pop()
-    }
+        this.rstack.pop();
+    };
 
     readFieldBegin = () => {
-        let r: any = {}
+        let r: any = {};
 
         let fid = -1;
-        let ftype = ThriftType.STOP
+        let ftype = ThriftType.STOP;
 
         //get a fieldId
-        for (var f in (this.rstack[this.rstack.length - 1])) {
+        for (var f in this.rstack[this.rstack.length - 1]) {
             if (f === null) {
-                continue
+                continue;
             }
 
-            fid = parseInt(f, 10)
-            this.rpos.push(this.rstack.length)
+            fid = parseInt(f, 10);
+            this.rpos.push(this.rstack.length);
 
-            let field = this.rstack[this.rstack.length - 1][fid]
+            let field = this.rstack[this.rstack.length - 1][fid];
 
             //remove so we don't see it again
-            delete this.rstack[this.rstack.length - 1][fid]
+            delete this.rstack[this.rstack.length - 1][fid];
 
-            this.rstack.push(field)
+            this.rstack.push(field);
 
-            break
+            break;
         }
 
         if (fid != -1) {
             //should only be 1 of these but this is the only
             //way to match a key
-            for (var i in (this.rstack[this.rstack.length - 1])) {
+            for (var i in this.rstack[this.rstack.length - 1]) {
                 if (TJSONProtocol.RType[i] === null) {
-                    continue
+                    continue;
                 }
 
-                ftype = TJSONProtocol.RType[i]
-                this.rstack[this.rstack.length - 1] = this.rstack[this.rstack.length - 1][i]
+                ftype = TJSONProtocol.RType[i];
+                this.rstack[this.rstack.length - 1] = this.rstack[
+                    this.rstack.length - 1
+                ][i];
             }
         }
 
-        r.fname = ''
-        r.ftype = ftype
-        r.fid = fid
+        r.fname = "";
+        r.ftype = ftype;
+        r.fid = fid;
 
-        return r
-    }
+        return r;
+    };
 
     readFieldEnd = () => {
-        let p = this.rpos.pop()
+        let p = this.rpos.pop();
 
         while (this.rstack.length > p) {
-            this.rstack.pop()
+            this.rstack.pop();
         }
-    }
+    };
 
     readMapBegin = () => {
-        let map = this.rstack.pop()
-        let first = map.shift()
+        let map = this.rstack.pop();
+        let first = map.shift();
         if (first instanceof Array) {
-            this.rstack.push(map)
-            map = first
-            first = map.shift()
+            this.rstack.push(map);
+            map = first;
+            first = map.shift();
         }
 
-        var r: any = {}
-        r.ktype = TJSONProtocol.RType[first]
-        r.vtype = TJSONProtocol.RType[map.shift()]
-        r.size = map.shift()
+        var r: any = {};
+        r.ktype = TJSONProtocol.RType[first];
+        r.vtype = TJSONProtocol.RType[map.shift()];
+        r.size = map.shift();
 
+        this.rpos.push(this.rstack.length);
+        this.rstack.push(map.shift());
 
-        this.rpos.push(this.rstack.length)
-        this.rstack.push(map.shift())
-
-        return r
-    }
+        return r;
+    };
 
     readMapEnd = () => {
-        this.readFieldEnd()
-    }
+        this.readFieldEnd();
+    };
 
     readListBegin = () => {
-        let list = this.rstack[this.rstack.length - 1]
+        let list = this.rstack[this.rstack.length - 1];
 
-        let r: any = {}
-        r.etype = TJSONProtocol.RType[list.shift()]
-        r.size = list.shift()
+        let r: any = {};
+        r.etype = TJSONProtocol.RType[list.shift()];
+        r.size = list.shift();
 
-        this.rpos.push(this.rstack.length)
-        this.rstack.push(list.shift())
+        this.rpos.push(this.rstack.length);
+        this.rstack.push(list.shift());
 
-        return r
-    }
+        return r;
+    };
 
     readListEnd = () => {
-        let p = this.rpos.pop() - 2
-        let st = this.rstack
-        st.pop()
+        let p = this.rpos.pop() - 2;
+        let st = this.rstack;
+        st.pop();
         if (st instanceof Array && st.length > p && st[p].length > 0) {
-            st.push(st[p].shift())
+            st.push(st[p].shift());
         }
-    }
+    };
 
     readSetBegin = () => {
-        return this.readListBegin()
-    }
+        return this.readListBegin();
+    };
 
     readSetEnd = () => {
-        return this.readListEnd()
-    }
+        return this.readListEnd();
+    };
 
     readBool = () => {
-        return this.readValue() === "1"
-    }
+        return this.readValue() === "1";
+    };
 
     readByte = () => {
-        return this.readI32()
-    }
+        return this.readI32();
+    };
 
     readI16 = () => {
-        return this.readI32()
-    }
+        return this.readI32();
+    };
 
     readI32 = () => {
-        return +this.readValue()
-    }
+        return +this.readValue();
+    };
 
     readValue = (f?) => {
         if (f === undefined) {
-            f = this.rstack[this.rstack.length - 1]
+            f = this.rstack[this.rstack.length - 1];
         }
 
-        let r: any = {}
+        let r: any = {};
 
         if (f instanceof Array) {
             if (f.length === 0) {
-                r.value = undefined
+                r.value = undefined;
             } else {
-                r.value = f.shift()
+                r.value = f.shift();
             }
         } else if (f instanceof Object) {
             for (let i in f) {
                 if (i === null) {
-                    continue
+                    continue;
                 }
-                this.rstack.push(f[i])
-                delete f[i]
+                this.rstack.push(f[i]);
+                delete f[i];
 
-                r.value = i
-                break
+                r.value = i;
+                break;
             }
         } else {
-            r.value = f
-            this.rstack.pop()
+            r.value = f;
+            this.rstack.pop();
         }
 
-        return r.value
-    }
+        return r.value;
+    };
 
     readI64 = () => {
-        return this.readI32() // TODO
-    }
+        return this.readI32(); // TODO
+    };
 
     readDouble = () => {
-        return this.readI32()
-    }
+        return this.readI32();
+    };
 
     readBinary = () => {
-        return new Buffer(this.readValue(), 'base64')
-    }
+        return new Buffer(this.readValue(), "base64");
+    };
 
     readString = () => {
-        return this.readValue()
-    }
+        return this.readValue();
+    };
 
     getTransport = () => {
-        return this.trans
-    }
+        return this.trans;
+    };
 
     skip = (type: ThriftType) => {
-        let ret, i
+        let ret, i;
         switch (type) {
             case ThriftType.STOP:
-                return null
+                return null;
 
             case ThriftType.BOOL:
-                return this.readBool()
+                return this.readBool();
 
             case ThriftType.BYTE:
-                return this.readByte()
+                return this.readByte();
 
             case ThriftType.I16:
-                return this.readI16()
+                return this.readI16();
 
             case ThriftType.I32:
-                return this.readI32()
+                return this.readI32();
 
             case ThriftType.I64:
-                return this.readI64()
+                return this.readI64();
 
             case ThriftType.DOUBLE:
-                return this.readDouble()
+                return this.readDouble();
 
             case ThriftType.STRING:
-                return this.readString()
+                return this.readString();
 
             case ThriftType.STRUCT:
-                this.readStructBegin()
+                this.readStructBegin();
                 while (true) {
-                    ret = this.readFieldBegin()
+                    ret = this.readFieldBegin();
                     if (ret.ftype == ThriftType.STOP) {
                         break;
                     }
-                    this.skip(ret.ftype)
-                    this.readFieldEnd()
+                    this.skip(ret.ftype);
+                    this.readFieldEnd();
                 }
-                this.readStructEnd()
-                return null
+                this.readStructEnd();
+                return null;
 
             case ThriftType.MAP:
-                ret = this.readMapBegin()
+                ret = this.readMapBegin();
                 for (i = 0; i < ret.size; i++) {
                     if (i > 0) {
-                        if (this.rstack.length > this.rpos[this.rpos.length - 1] + 1) {
-                            this.rstack.pop()
+                        if (
+                            this.rstack.length >
+                            this.rpos[this.rpos.length - 1] + 1
+                        ) {
+                            this.rstack.pop();
                         }
                     }
-                    this.skip(ret.ktype)
-                    this.skip(ret.vtype)
+                    this.skip(ret.ktype);
+                    this.skip(ret.vtype);
                 }
-                this.readMapEnd()
-                return null
+                this.readMapEnd();
+                return null;
 
             case ThriftType.SET:
-                ret = this.readSetBegin()
+                ret = this.readSetBegin();
                 for (i = 0; i < ret.size; i++) {
-                    this.skip(ret.etype)
+                    this.skip(ret.etype);
                 }
-                this.readSetEnd()
-                return null
+                this.readSetEnd();
+                return null;
 
             case ThriftType.LIST:
-                ret = this.readListBegin()
+                ret = this.readListBegin();
                 for (i = 0; i < ret.size; i++) {
-                    this.skip(ret.etype)
+                    this.skip(ret.etype);
                 }
-                this.readListEnd()
-                return null
+                this.readListEnd();
+                return null;
         }
-    }
+    };
 }

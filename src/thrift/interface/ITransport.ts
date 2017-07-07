@@ -1,7 +1,6 @@
-import { Buffer } from 'buffer'
+import { Buffer } from "buffer";
 
 interface ITransport {
-
     flush: (async?: boolean, callback?) => void;
 
     isOpen: () => boolean;
@@ -10,11 +9,11 @@ interface ITransport {
 
     close: () => void;
 
-    read: (len: number) => Buffer|string;
+    read: (len: number) => Buffer | string;
 
     write: (buf: string) => void;
 
-    borrow?: () => {buf: Buffer, readIndex: number, writeIndex: number};
+    borrow?: () => { buf: Buffer; readIndex: number; writeIndex: number };
 
     consume?: (len: number) => void;
 
@@ -28,4 +27,4 @@ export interface TransportClass {
     receiver: (callback: Function) => Function;
 }
 
-export default ITransport
+export default ITransport;
